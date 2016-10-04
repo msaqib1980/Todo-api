@@ -23,7 +23,7 @@ var grades = [15,30];
 
 function addInToArray(gradesArr){
     gradesArr.push(55);
-    debugger;
+   // debugger;
 //    gradesArr = [45,65,56];
 }
 

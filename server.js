@@ -94,18 +94,8 @@ app.post('/todos',function(req,res){
          res.status(400).json(e);
     });
     
-//    body.description = body.description.trim();
-//    
-//    if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
-//        return res.status(400).send();
-//    }
-//    
-//    body.id = todoNextId++;
-//    todos.push(body);
-//    
-//    console.log(todos);
-//    
-//    res.json(body);
+
+    
 });
 
 //DELETE /todos/:id
@@ -128,30 +118,19 @@ app.delete('/todos/:id',function(req,res){
        res.status(404).send(); 
     });
     
-//    var matchedTodo = _.findWhere(todos, {id: todoId});
-//    
-//    if (!matchedTodo) {
-//        res.status(404).json({"error":"no todo found with that id"});
-//    }else{
-//        todos = _.without(todos,matchedTodo);
-//        res.json(matchedTodo);
-//    }
+
+    
 });
 
 //PUT /todos/:id
 app.put('/todos/:id',function(req,res){
     var todoId = parseInt(req.params.id,10);
     
-//    var matchedTodo = _.findWhere(todos, {id: todoId});
     
     var body = _.pick(req.body,'description','completed');
     var attributes = {};
     
-//    if (!matchedTodo){
-//        return res.status(404).send('id did not found');
-//    }
-    
-    
+
     
     if (body.hasOwnProperty('completed')){
         attributes.completed = body.completed;
@@ -175,9 +154,18 @@ app.put('/todos/:id',function(req,res){
         res.status(500).send(e);
     });
     
-//    _.extend(matchedTodo,attributes);
-//    res.json(matchedTodo);
+
     
+});
+
+app.post('/users',function(req,res){
+    var body = _.pick(req.body,'email','password');
+    
+    db.user.create(body).then(function(user){
+        res.json(user.toJSON());
+    },function(e){
+        res.status(404).json(e);
+    });
 });
 
 db.sequelize.sync().then(function(){

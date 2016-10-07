@@ -36,24 +36,8 @@ app.get('/todos',function(req,res){
     },function(e){
         res.status(500).send();
     });
+
     
-//    var filteredTodos = todos;
-//    
-//    if(queryParams.hasOwnProperty('completed') && queryParams.completed === 'true'){
-//        filteredTodos = _.where(filteredTodos, {completed: true});
-//    }else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false'){
-//        filteredTodos = _.where(filteredTodos, {completed: false});
-//    }
-//    
-//    if(queryParams.hasOwnProperty('q') && queryParams.q.length > 0){
-//        filteredTodos = _.filter(filteredTodos, function(todo){
-//            console.log(todo);
-//            console.log(todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()));
-//            return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-//        });
-//    }
-//    
-//    res.json(filteredTodos); 
 });
 
 app.get('/todos/:id',function(req,res){
@@ -69,21 +53,7 @@ app.get('/todos/:id',function(req,res){
         res.status(500).send(e);
     });
     
-//    var matchedTodo = _.findWhere(todos, {id: todoId});
-    
-//    todos.forEach(function(todo){
-//        if (todoId === todo.id){
-//           matchedTodo = todo;     
-//        }
-//    });
-    
-    
-//    if (matchedTodo){
-//        res.json(matchedTodo); 
-//    }else{
-//        res.status(404).send('can not find anyting with that id ' + req.params.id);
-//    }
-    
+  
 });
 
 app.post('/todos',function(req,res){
@@ -173,7 +143,7 @@ app.post('/users/login',function(req,res){
    var body = _.pick(req.body,'email','password');
     
     db.user.authenticate(body).then(function(user){
-        res.json(user.toPublicJSON());
+        res.header('Auth', user.generateToken('saqib')).json(user.toPublicJSON());
     },function(e){
         res.status(401).send();
     });
@@ -181,7 +151,19 @@ app.post('/users/login',function(req,res){
 
 });
 
-db.sequelize.sync({force:true}).then(function(){
+app.get('/users',function(req,res){
+    
+   db.users.findAll({
+       limit:10
+   }).then(function(users){
+            res.json(users.toJSON());
+         },function(e){
+         res.status(500).send();
+   });
+});
+   
+
+db.sequelize.sync().then(function(){
         app.listen(PORT,function(){
         console.log('Express listing on port ' + PORT + '!');
         });

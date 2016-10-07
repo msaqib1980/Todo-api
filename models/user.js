@@ -1,5 +1,7 @@
 var bcrypt = require('bcrypt');
 var _ = require('underscore');
+var jwt = require('jsonwebtoken');
+var cryptojs = require('crypto-js');
 
 module.exports = function(sequelize, DataTypes) {
       var user = sequelize.define('user', {
@@ -40,22 +42,16 @@ module.exports = function(sequelize, DataTypes) {
                   }
               }
           },
-          instanceMethods:{
-              toPublicJSON:function(){
-                  var json = this.toJSON();
-                  return _.pick(json,'id','email','createdAt','updatedAt');
-              }
-          },
           classMethods: {
-              authenticate: function(){
+              authenticate: function(body){
                   return new Promise(function(resolve, reject){
                    if(typeof body.email !== 'string' || typeof body.password !== 'string'){
                        return reject();
                    }
 
                     user.findOne({
-                        where:{
-                            email:body.email
+                        where: {
+                            email: body.email
                         }
                     }).then(function(user){
                         if(!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
@@ -63,15 +59,38 @@ module.exports = function(sequelize, DataTypes) {
                         }
 
                         resolve(user);
-                        
                     },function(e) {
                         reject();
                     });
                   });
               }
+          },
+          instanceMethods:{
+              toPublicJSON:function(){
+                  var json = this.toJSON();
+                  return _.pick(json,'id','email','createdAt','updatedAt');
+              },
+              generateToken: function(type){
+                  if(!_.isString(type)) {
+                      return undefined;
+                  }
+                  try{
+                      var stringData = JSON.stringify({
+                          id:this.get('id'),
+                          type: type
+                      });
+                      var encryptedData = cryptojs.AES.encrypt(stringData,'pak2312141').toString();
+                      var token = jwt.sign({
+                         token: encryptedData,
+                      },'pak2312141');
+                      
+                      return token;
+                  }catch(e){
+                      return undefined;
+                  }
+              }
           }
       });
     
     return user;
-    
 };
